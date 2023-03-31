@@ -4,10 +4,12 @@
   "description": "create a PC or mobile single page or multiple module page Vue application",
   "main": "index.js",
   "bin": {
-    "xvue": "bin/cli.js"
+    "xvuec": "bin/cli.js",
+    "xvue": "bin/xvue.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "xvuec"
   },
   "keywords": [
     "multiple pages",
@@ -27,5 +29,8 @@
     "fs-extra": "^11.1.0",
     "inquirer": "^8.2.5",
     "ora": "^6.1.2"
+  },
+  "devDependencies": {
+    "semver": "^7.3.8"
   }
 }

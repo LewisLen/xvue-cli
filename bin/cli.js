@@ -1,132 +1,51 @@
 #! /usr/bin/env node
-
-// #! 符号用于指定脚本的解释程序
-// Node CLI 应用入口文件必须要有这样的文件头
-// 如果是Linux 或者 macOS 系统下还需要修改此文件的读写权限为 755
-// 具体就是通过 chmod 755 cli.js 实现修改
-
-const semver = require("semver");
-const xVersion = require('../package.json');
-const requiredVersion = require("../package.json").engines.node;
+console.log(process.argv);
 const program = require("commander");
 const chalk = require("chalk");
 
-// 检查node版本
-function checkNodeVersion(wanted, id) {
-  if (!semver.satisfies(process.version, wanted, { includePrerelease: true })) {
-    console.log(
-      chalk.red(
-        "You are using Node " +
-          process.version +
-          ", but this version of " +
-          id +
-          " requires Node " +
-          wanted +
-          ".\nPlease upgrade your Node version."
-      )
-    );
-    process.exit(1);
-  }
-}
-
-checkNodeVersion(requiredVersion, "xvue-cli");
-
-program.version(xVersion.version).usage("<command> [options] hhhh");
-
-// 定义命令和参数
+// .version()方法可以设置版本，其默认选项为-V和--version，设置了版本后，命令行会输出当前的版本号。
+// 修改帮助信息的首行提示
 program
-  .command('create <app-name>')
-  .description('create a new project')
-  // -f or --force 为强制创建，如果创建的目录存在则直接覆盖
-  .option('-f, --force', 'overwrite target directory if it exist')
-  .action((name, options) => {
-    // 打印执行结果
-    console.log('name:',name,'options:',options)
-  })
-  
+  .version("1.0.0")
+  .usage("使用方式是命令+空格+参数的方式，即xvue <command> <options>");
+
 program
-   // 配置版本号信息
-  .version(`v${xVersion.version}`)
-  .usage('<command> [option]')
-
-  console.log(111);
-
-  console.log(222);
+  .command("create <projectName> [options]")
+  .description("使用xvue创建一个项目")
+  .option("-f --force", "强制覆盖")
+  .action((projectName, options) => {});
 
 program
   .command("info")
-  .description("print debugging information about your environment")
+  .description("打印系统环境信息")
+  .option("-s", "查看系统信息")
+  .option("-b", "查看浏览器信息")
   .action((cmd) => {
-    console.log(chalk.bold("\nEnvironment Info:"));
-    require("envinfo")
-      .run(
-        {
-          System: ["OS", "CPU"],
-          Binaries: ["Node", "Yarn", "npm"],
-          Browsers: ["Chrome", "Edge", "Firefox", "Safari"],
-          npmPackages: "/**/{typescript,*vue*,@vue/*/}",
-          npmGlobalPackages: ["@vue/cli"],
-        },
-        {
-          showNotFound: true,
-          duplicates: true,
-          fullTree: true,
-        }
-      )
-      .then(console.log);
+    console.log("打印当前环境信息");
+    console.log(cmd);
   });
 
-  
-// output help information on unknown commands
+// 自定义监听事件，输入的不是所需要命令
 program.on("command:*", ([cmd]) => {
   program.outputHelp();
   console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}`));
-  console.log();
-  suggestCommands(cmd);
+  // suggestCommands(cmd);
   process.exitCode = 1;
 });
 
-// add some useful info on help
+// 当用户输入--help输出提示语
 program.on("--help", () => {
   console.log();
-  console.log(`  Run ${chalk.cyan(`xvue <command> --help`)} for detailed usage of given command.`);
+  console.log(
+    `  Run ${chalk.cyan(
+      `xvue <command> --help`
+    )} for detailed usage of given command.`
+  );
   console.log();
 });
 
+// 为所有注册的命令输入--help可以输出帮助信息，方便用户查看命令的使用说明
 program.commands.forEach((c) => c.on("--help", () => console.log()));
 
-// enhance common error messages
-const enhanceErrorMessages = require("../lib/util/enhanceErrorMessages");
-
-enhanceErrorMessages("missingArgument", (argName) => {
-  return `Missing required argument ${chalk.yellow(`<${argName}>`)}.`;
-});
-
-enhanceErrorMessages("unknownOption", (optionName) => {
-  return `Unknown option ${chalk.yellow(optionName)}.`;
-});
-
-enhanceErrorMessages("optionMissingArgument", (option, flag) => {
-  return (
-    `Missing required argument for option ${chalk.yellow(option.flags)}` +
-    (flag ? `, got ${chalk.yellow(flag)}` : ``)
-  );
-});
-
-// 解析用户执行命令传入参数
+// 解析用户传入参数执行命令
 program.parse(process.argv);
-
-function suggestCommands(unknownCommand) {
-  const availableCommands = program.commands.map((cmd) => cmd._name);
-  let suggestion;
-  availableCommands.forEach((cmd) => {
-    const isBestMatch = leven(cmd, unknownCommand) < leven(suggestion || "", unknownCommand);
-    if (leven(cmd, unknownCommand) < 3 && isBestMatch) {
-      suggestion = cmd;
-    }
-  });
-
-  if (suggestion) {
-    console.log(`  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`));
-  }
-}
