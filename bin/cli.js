@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 const program = require("commander");
 const chalk = require("chalk");
+const inquirer = require("inquirer");
 const download = require("download-git-repo");
 
 // .version()方法可以设置版本，其默认选项为-V和--version，设置了版本后，命令行会输出当前的版本号。
@@ -56,18 +57,34 @@ https: program
   .action((projectName) => {
     // console.log("模板", template);
     console.log("项目名", projectName);
-    download(
-      "http://github.com:LewisLen/vue-multiple-h5#main",
-      projectName,
-      { clone: true },
-      (err) => {
-        if (err) {
-          console.log("下载模板失败");
-        } else {
-          console.log("下载模板成功");
-        }
-      }
-    );
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "projectName",
+          message: "请输入项目名称",
+        },
+        {
+          type: "input",
+          name: "author",
+          message: "请输入作者信息",
+        },
+      ])
+      .then((answers) => {
+        console.log(answers);
+      });
+    // download(
+    //   "http://github.com:LewisLen/vue-multiple-h5#main",
+    //   projectName,
+    //   { clone: true },
+    //   (err) => {
+    //     if (err) {
+    //       console.log("下载模板失败");
+    //     } else {
+    //       console.log("下载模板成功");
+    //     }
+    //   }
+    // );
   });
 
 // 自定义监听事件，输入的不是所需要命令
