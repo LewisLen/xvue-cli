@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 const program = require("commander");
 const chalk = require("chalk");
+const download = require("download-git-repo");
 
 // .version()方法可以设置版本，其默认选项为-V和--version，设置了版本后，命令行会输出当前的版本号。
 // usage -h时输出的首行提示帮助信息
@@ -46,6 +47,27 @@ program
     for (let item in templates) {
       console.log(`${item}.description`);
     }
+  });
+
+// 根据模板名下载对应的模板
+https: program
+  .command("init <projectName>")
+  .description("下载对应模板，根据模板创建项目")
+  .action((projectName) => {
+    // console.log("模板", template);
+    console.log("项目名", projectName);
+    download(
+      "http://github.com:LewisLen/vue-multiple-h5#main",
+      projectName,
+      { clone: true },
+      (err) => {
+        if (err) {
+          console.log("下载模板失败");
+        } else {
+          console.log("下载模板成功");
+        }
+      }
+    );
   });
 
 // 自定义监听事件，输入的不是所需要命令
