@@ -4,6 +4,8 @@ const chalk = require("chalk");
 const inquirer = require("inquirer");
 // const download = require("download-git-repo");
 const ejs = require("ejs");
+const fs = require("fs-extra");
+const path = require("path");
 
 // .version()方法可以设置版本，其默认选项为-V和--version，设置了版本后，命令行会输出当前的版本号。
 // usage -h时输出的首行提示帮助信息
@@ -54,7 +56,7 @@ program
   .command("init <projectName>")
   .description("下载对应模板，根据模板创建项目")
   .action((projectName) => {
-    // console.log("模板", template);
+    console.log("模板", path.join(path.resolve(__dirname), "../template/template-a.html"));
     console.log("项目名", projectName);
     inquirer
       .prompt([
@@ -62,16 +64,27 @@ program
           type: "input",
           name: "projectName",
           message: "请输入项目名称",
+          default: projectName,
         },
         {
           type: "input",
           name: "author",
           message: "请输入作者信息",
+          default: "Len",
         },
       ])
       .then((answers) => {
-        // console.log(answers);
-        const fileStr = 
+        const fileStr = fs.readFileSync(
+          path.join(path.resolve(__dirname), "../template/template-a.html"),
+          "utf-8"
+        );
+        const str = ejs.render(fileStr, { title: answers.projectName });
+        // fs.writeFile(str, path.join(path.resolve(__dirname), "../demo/demo.html"));
+        fs.writeFile(path.join(path.resolve(__dirname), "../dist/demo.html"), str, (err) => {
+          if (err) throw err;
+          console.log(str);
+          console.log("The file has been saved!");
+        });
       });
     // download(
     //   "http://github.com:LewisLen/vue-multiple-h5#main",
