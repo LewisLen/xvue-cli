@@ -2,13 +2,12 @@
 const program = require("commander");
 const chalk = require("chalk");
 const inquirer = require("inquirer");
-const download = require("download-git-repo");
+// const download = require("download-git-repo");
+const ejs = require("ejs");
 
 // .version()方法可以设置版本，其默认选项为-V和--version，设置了版本后，命令行会输出当前的版本号。
 // usage -h时输出的首行提示帮助信息
-program
-  .version("1.0.0")
-  .usage("使用方式是命令+空格+参数的方式，即xvue <command> <options>");
+program.version("1.0.0").usage("使用方式是命令+空格+参数的方式，即xvue <command> <options>");
 
 program
   .command("create <projectName> [options]")
@@ -51,7 +50,7 @@ program
   });
 
 // 根据模板名下载对应的模板
-https: program
+program
   .command("init <projectName>")
   .description("下载对应模板，根据模板创建项目")
   .action((projectName) => {
@@ -71,7 +70,8 @@ https: program
         },
       ])
       .then((answers) => {
-        console.log(answers);
+        // console.log(answers);
+        const fileStr = 
       });
     // download(
     //   "http://github.com:LewisLen/vue-multiple-h5#main",
@@ -99,11 +99,7 @@ program.on("command:*", ([cmd]) => {
 // 当用户输入--help输出提示语
 program.on("--help", () => {
   console.log();
-  console.log(
-    `  Run ${chalk.cyan(
-      `xvue <command> --help`
-    )} for detailed usage of given command.`
-  );
+  console.log(`  Run ${chalk.cyan(`xvue <command> --help`)} for detailed usage of given command.`);
   console.log();
 });
 
