@@ -14,7 +14,7 @@ program
   .usage("使用方式是命令+空格+参数的方式，即xvue <command> <options>");
 
 program
-  .command("create <projectName> [options]")
+  .command("create <projectName>")
   .description("使用xvue创建一个项目")
   .option("-f --force", "强制覆盖")
   .option("-d", "使用默认设置")
