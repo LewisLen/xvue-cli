@@ -104,7 +104,6 @@ program
 program.on("command:*", ([cmd]) => {
   program.outputHelp();
   console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}`));
-  // suggestCommands(cmd);
   process.exitCode = 1;
 });
 
