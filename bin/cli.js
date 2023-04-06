@@ -12,11 +12,95 @@ const path = require("path");
 program.version("1.0.0").usage("使用方式是命令+空格+参数的方式，即xvue <command> <options>");
 
 program
-  .command("create <projectName> [options]")
+  .command("create <projectName>")
   .description("使用xvue创建一个项目")
   .option("-f --force", "强制覆盖")
   .option("-d", "使用默认设置")
-  .action((projectName, options) => {});
+  .action((projectName, options) => {
+    console.log("options---", options);
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "projectName",
+          message: "请输入项目名称",
+          default: projectName,
+        },
+        {
+          name: "action",
+          type: "list",
+          message: `Target directory already exists. Pick an action:`,
+          choices: [
+            { name: "Overwrite", value: "overwrite" },
+            { name: "Merge", value: "merge" },
+            { name: "Cancel", value: false },
+          ],
+          default: "merge",
+        },
+        {
+          name: "preset-confirm",
+          type: "confirm",
+          message: "是否保存预设",
+          default: "y",
+        },
+        {
+          name: "lintOn",
+          message: "Pick additional lint features:",
+          // when: (answers) => answers.features.includes("linter"),
+          type: "checkbox",
+          choices: [
+            {
+              name: "Lint on save",
+              value: "save",
+              checked: true,
+            },
+            {
+              name: "Lint and fix on commit",
+              value: "commit",
+            },
+          ],
+        },
+      ])
+      .then((answers) => {
+        console.log(answers);
+        const templPath = path.join(__dirname, "../template");
+        const dirname = `${process.cwd()}/${projectName}`;
+        fs.readdir(templPath, (err, files) => {
+          if (err) throw err;
+          files.forEach((file) => {
+            ejs.renderFile(path.join(templPath, file), { data: answers }).then((data) => {
+              if (!fs.existsSync(dirname)) {
+                fs.mkdirSync(dirname, { recursive: true });
+              }
+              fs.writeFile(path.join(dirname, file), data);
+            });
+          });
+        });
+        // const dirPath = path.resolve(__dirname);
+        // const templateFilePath = path.join(dirPath, "../template/a.html");
+        // const fileStr = fs.readFileSync(templateFilePath, "utf-8");
+        // // let template = ejs.compile(fileStr)({ data: answers });
+        // const template = ejs.render(fileStr, { data: answers });
+        // const dirname = `${process.cwd()}/${projectName}`;
+        // if (!fs.existsSync(dirname)) {
+        //   fs.mkdirSync(dirname, { recursive: true });
+        // }
+        // fs.writeFile(`${dirname}/index.html`, template);
+      });
+    // 下载远程模板
+    // download(
+    //   "http://github.com:LewisLen/vue-multiple-h5#main",
+    //   projectName,
+    //   { clone: true },
+    //   (err) => {
+    //     if (err) {
+    //       console.log("下载模板失败");
+    //     } else {
+    //       console.log("下载模板成功");
+    //     }
+    //   }
+    // );
+  });
 
 program
   .command("info")
@@ -49,55 +133,6 @@ program
     for (let item in templates) {
       console.log(`${item}.description`);
     }
-  });
-
-// 根据模板名下载对应的模板
-program
-  .command("init <projectName>")
-  .description("下载对应模板，根据模板创建项目")
-  .action((projectName) => {
-    console.log("模板", path.join(path.resolve(__dirname), "../template/template-a.html"));
-    console.log("项目名", projectName);
-    inquirer
-      .prompt([
-        {
-          type: "input",
-          name: "projectName",
-          message: "请输入项目名称",
-          default: projectName,
-        },
-        {
-          type: "input",
-          name: "author",
-          message: "请输入作者信息",
-          default: "Len",
-        },
-      ])
-      .then((answers) => {
-        const fileStr = fs.readFileSync(
-          path.join(path.resolve(__dirname), "../template/template-a.html"),
-          "utf-8"
-        );
-        const str = ejs.render(fileStr, { title: answers.projectName });
-        // fs.writeFile(str, path.join(path.resolve(__dirname), "../demo/demo.html"));
-        fs.writeFile(path.join(path.resolve(__dirname), "../dist/demo.html"), str, (err) => {
-          if (err) throw err;
-          console.log(str);
-          console.log("The file has been saved!");
-        });
-      });
-    // download(
-    //   "http://github.com:LewisLen/vue-multiple-h5#main",
-    //   projectName,
-    //   { clone: true },
-    //   (err) => {
-    //     if (err) {
-    //       console.log("下载模板失败");
-    //     } else {
-    //       console.log("下载模板成功");
-    //     }
-    //   }
-    // );
   });
 
 // 自定义监听事件，输入的不是所需要命令
